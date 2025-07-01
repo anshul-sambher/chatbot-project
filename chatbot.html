@@ -4,15 +4,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chatbot</title>
+    <style>
+      body {
+        font-family: Arial;
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+      .send-button {
+        background-color: rgb(25, 135, 84);
+        color: white;
+        padding: 12px 20px;
+        margin-left: 10px;
+        border: none;
+        border-radius: 10px;
+        font-size: 15px;
+        cursor: pointer;
+      }
+
+      .chat-input {
+        padding: 12px 15px;
+        border-radius: 10px;
+        border-width: 1px;
+        font-size: 15px;
+        flex: 1;
+      }
+
+      .chat-input-container {
+        display: flex;
+        margin-bottom: 60px;
+      }
+
+      .app-container {
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        height: 100vh; /* vh = viewport height */
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-message-user {
+        display: flex;
+        justify-content: end;
+        align-items: start;
+        margin-bottom: 20px;
+      }
+
+      .chat-message-robot {
+        display: flex;
+        align-items: start;
+        margin-bottom: 20px;
+      }
+
+      .chat-message-text {
+        background-color: rgb(238, 238, 238);
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin-right: 10px;
+        margin-left: 10px;
+        max-width: 300px;
+      }
+
+      .chat-message-profile {
+        width: 45px;
+      }
+
+      .chat-messages-container {
+        flex: 1;
+        margin-top: 20px;
+        overflow: scroll;
+        scrollbar-width: none;
+      }
+    </style>
   </head>
   <body>
     <div class="js-container"></div>
 
     <script src="https://unpkg.com/supersimpledev/react.js"></script>
     <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+    <script src="https://unpkg.com/supersimpledev/chatbot.js"></script>
     <script src="https://unpkg.com/supersimpledev/babel.js"></script>
 
     <script type="text/babel">
+
       /*
         -> React Component -> component is a piece of a webpage
         -> React components return HTML that needs to be displayed
@@ -30,35 +105,186 @@
         -> || (default operator) if left side is false default to right
         -> && (guard operator) if left side is true default to right (like if)
         -> Best practice to save the final web application is in a component
+        -> Inserting an array of components in JSX renders all the components
+        -> Each React component in an array should receive a key prop which React
+           uses to track changes in an array
+        -> State = data connected to the HTML, updating the data updates the HTML
+           that data can either be displayed OR affect how the display renders
+        -> React does MVC behind-the-scenes using state which provides an updater
+           function that updates the HTML when updating the data
+        -> React objects are immutable by design to allow efficiencies, hence, we
+           should always work on copies and not change it directly
+        -> Direct DOM manipulation is always discouraged in React
+        -> Always use State to save data that changes over time
+        -> Lifting the state up is a technique in which by shifting the state from
+           a lower component to a higher component, we can share the state across
+           parallel components and their children in the component tree
+        -> State does not update immediately, it updates only after the code is finished,
+           so if we have multiple changes to the state variable, they have to be accumulated
+        -> Props are designed to be read-only for efficient execution of React
+        -> Hooks let us insert React features into our components, for example, React.useState()
+           is a hook which inserts a React feature called State into our components
+        -> useEffect is another hook that runs some code when a component is created or updated
+           as a second parameter, it takes an array (dependency array) to decide when to run
+           *  an empty array means it will run only when the component is created
+           *  by passing some data to this array, it will also run whenever that data changes
+        -> Hooks in general are pieces of code that execute during certain events or parts of a 
+           program's lifecycle
+        -> Hooks can only be called at the top level of the component to allow React to track the
+           state and do effective rendering - much like every other rule of React
+        -> Instead of direct DOM access, useRef() allows us to save an HTML element from the
+           component by creating a ref which is a container with special React features
       */
-      function ChatInput() {
+
+      function ChatInput({
+        chatMessages, setChatMessages, isLoading, setIsLoading
+      }) {
+        const [ inputText, setInputText ] = React.useState('');
+
+        function saveInputText(event) {
+          if (event.key === 'Enter') {
+            if (!isLoading && inputText) {
+              sendMessage();
+            }
+          } else if (event.key === 'Escape') {
+            setInputText('');
+          } else {
+            setInputText(event.target.value);
+          }
+        }
+
+        async function sendMessage() {
+          const newChatMessages = [
+            ...chatMessages,
+            {
+              message: inputText,
+              sender: "user",
+              id: crypto.randomUUID()
+            }
+          ];
+
+          setChatMessages(newChatMessages);
+          setInputText('');
+
+          setChatMessages([
+            ...newChatMessages,
+            {
+              message: 'Loading...',
+              sender: "robot",
+              id: crypto.randomUUID()
+            }
+          ]);
+
+          setIsLoading(true);
+          const response = await Chatbot.getResponseAsync(inputText);
+          setIsLoading(false);
+          
+          setChatMessages([
+            ...newChatMessages,
+            {
+              message: response,
+              sender: "robot",
+              id: crypto.randomUUID()
+            }
+          ]);
+        }
+
         return (
-          <div>
-            <input placeholder="Send a message to Chatbot" size="30" />
-            <button>Send</button>
+          <div className="chat-input-container">
+            <input 
+              placeholder="Send a message to Chatbot"
+              size="30"
+              onChange={saveInputText}
+              onKeyDown={saveInputText}
+              value={inputText}
+              className="chat-input"
+            />
+            <button
+              onClick={() => {
+                if (!isLoading && inputText) {
+                  sendMessage();
+                }
+              }}
+              className="send-button"
+            >Send</button>
           </div>
         );
       }
 
       function ChatMessage({ message, sender }) {
         return (
-          <div>
-            {sender === 'robot' && <img src="images/robot.png" width="50" />}
-            {message}
-            {sender === 'user' && <img src="images/user.png" width="50" />}
+          <div className={'chat-message-' + sender}>
+            {sender === 'robot' &&
+            <img src="images/robot.png" className="chat-message-profile" />}
+            <div className="chat-message-text">
+              {message}
+            </div>
+            {sender === 'user' &&
+            <img src="images/user.png" className="chat-message-profile" />}
+          </div>
+        );
+      }
+
+      function ChatMessages({ chatMessages }) {
+        const chatMessagesRef = React.useRef(null);
+
+        React.useEffect(() => {
+          const containerElem = chatMessagesRef.current;
+          if (containerElem) {
+            containerElem.scrollTop = containerElem.scrollHeight;
+          }
+        }, [chatMessages]);
+
+        return (
+          <div
+            className="chat-messages-container"
+            ref={chatMessagesRef}
+          > {chatMessages.map((chatMessage) => {
+              return (
+                <ChatMessage 
+                  message={chatMessage.message}
+                  sender={chatMessage.sender}
+                  key={chatMessage.id}
+                />
+              );
+            })}
           </div>
         );
       }
 
       function App() {
+        const [ chatMessages, setChatMessages ] = React.useState([{
+          message: "hello chatbot",
+          sender: "user",
+          id: "id1"
+        }, {
+          message: "Hello! How can I help you?",
+          sender: "robot",
+          id: "id2"
+        }, {
+          message: "can you get me today's date?",
+          sender: "user",
+          id: "id3"
+        }, {
+          message: "Today is June 29",
+          sender: "robot",
+          id: "id4"
+        }]);
+
+        const [ isLoading, setIsLoading ] = React.useState(false);
+
         return (
-          <>
-            <ChatInput />
-            <ChatMessage message="hello chatbot" sender="user" />
-            <ChatMessage message="Hello! How can I help you?" sender="robot" />
-            <ChatMessage message="can you get me today's date?" sender="user" />
-            <ChatMessage message="Today is June 29" sender="robot" />
-          </>
+          <div className="app-container">
+            <ChatMessages
+              chatMessages={chatMessages}
+            />
+            <ChatInput
+              chatMessages={chatMessages}
+              setChatMessages={setChatMessages}
+              isLoading={isLoading}
+              setIsLoading={setIsLoading}
+            />
+          </div>
         );
       }
 

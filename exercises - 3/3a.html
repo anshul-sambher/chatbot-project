@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 3a</title>
+  </head>
+  <body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+
+    <script type="text/babel">
+      function Counter({ count, setCount }) {
+        return (
+          <button
+            onClick={() => {
+              setCount(count + 1);
+            }}
+          >Clicked {count} {count === 1 ? 'time' : 'times'}</button>
+        );
+      }
+
+      function Reset({ setCount }) {
+        return (
+          <button
+            onClick={() => {
+              setCount(0);
+            }}
+          >Reset</button>
+        );
+      }
+
+      function App() {
+        const [ count, setCount ] = React.useState(0);
+
+        return (
+          <>
+            <Counter
+              count={count}
+              setCount={setCount}
+            />
+            <Counter
+              count={count}
+              setCount={setCount}
+            />
+            <Reset
+              setCount={setCount}
+            />
+          </>
+        );
+      }
+
+      const container = document.querySelector('.js-container');
+      ReactDOM.createRoot(container).render(<App />);
+    </script>
+  </body>
+</html>
