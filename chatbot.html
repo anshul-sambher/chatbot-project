@@ -11,6 +11,12 @@
         margin-bottom: 0;
       }
 
+      .welcome-message {
+        color: grey;
+        text-align: center;
+        /* text-align sets the alignment of inline data in a block element */
+      }
+
       .send-button {
         background-color: rgb(25, 135, 84);
         color: white;
@@ -76,6 +82,11 @@
         overflow: scroll;
         scrollbar-width: none;
       }
+
+      .loading-gif {
+        height: 40px;
+        margin: -15px;
+      }
     </style>
   </head>
   <body>
@@ -134,7 +145,30 @@
            state and do effective rendering - much like every other rule of React
         -> Instead of direct DOM access, useRef() allows us to save an HTML element from the
            component by creating a ref which is a container with special React features
+        -> We can create our own custom hooks as well, by starting the name of the function with
+           'use' and packaging code that needs to be run like a hook but uses standard code
       */
+
+      function useAutoScroll(dependencies) {
+        const elementRef = React.useRef(null);
+
+        React.useEffect(() => {
+          const element = elementRef.current;
+          if (element) {
+            element.scrollTop = element.scrollHeight;
+          }
+        }, dependencies);
+
+        return elementRef;
+      }
+
+      function WelcomeMessage() {
+        return (
+          <p
+            className="welcome-message"
+          >Welcome to the chatbot project! Send a message using the textbox below.</p>
+        );
+      }
 
       function ChatInput({
         chatMessages, setChatMessages, isLoading, setIsLoading
@@ -169,7 +203,8 @@
           setChatMessages([
             ...newChatMessages,
             {
-              message: 'Loading...',
+              message: <img src="images/loading-spinner.gif"
+                        className="loading-gif" />,
               sender: "robot",
               id: crypto.randomUUID()
             }
@@ -226,14 +261,7 @@
       }
 
       function ChatMessages({ chatMessages }) {
-        const chatMessagesRef = React.useRef(null);
-
-        React.useEffect(() => {
-          const containerElem = chatMessagesRef.current;
-          if (containerElem) {
-            containerElem.scrollTop = containerElem.scrollHeight;
-          }
-        }, [chatMessages]);
+        const chatMessagesRef = useAutoScroll([chatMessages]);
 
         return (
           <div
@@ -253,28 +281,12 @@
       }
 
       function App() {
-        const [ chatMessages, setChatMessages ] = React.useState([{
-          message: "hello chatbot",
-          sender: "user",
-          id: "id1"
-        }, {
-          message: "Hello! How can I help you?",
-          sender: "robot",
-          id: "id2"
-        }, {
-          message: "can you get me today's date?",
-          sender: "user",
-          id: "id3"
-        }, {
-          message: "Today is June 29",
-          sender: "robot",
-          id: "id4"
-        }]);
-
+        const [ chatMessages, setChatMessages ] = React.useState([]);
         const [ isLoading, setIsLoading ] = React.useState(false);
 
         return (
           <div className="app-container">
+            {!chatMessages.length && <WelcomeMessage />}
             <ChatMessages
               chatMessages={chatMessages}
             />

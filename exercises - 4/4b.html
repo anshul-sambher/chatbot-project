@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 4b</title>
+
+    <style>
+      body {
+        font-family: Arial;
+      }
+
+      .header {
+        font-size: 25px;
+      }
+
+      .input-element {
+        font-size: 15px;
+        padding: 10px 15px;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        border-width: 1px;
+        border-radius: 5px;
+        width: 200px;
+      }
+
+      .button-element {
+        background-color: rgb(0, 123, 255);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        margin-right: 5px;
+        margin-top: 10px;
+        padding: 10px 15px;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+
+    <script type="text/babel">
+      function Header() {
+        return (
+          <p
+            className="header"
+          >Hello, welcome to my website</p>
+        );
+      }
+
+      function Input({ type, placeholder }) {
+        return (
+          <input
+            type={type}
+            placeholder={placeholder}
+            className="input-element"
+          />
+        );
+      }
+
+      function RegisterButton({ buttonText }) {
+        return (
+          <button
+            className="button-element"
+          >{buttonText}</button>
+        );
+      }
+
+      function App() {
+        const [ show, setShow ] = React.useState(false);
+
+        return (
+          <>
+            <Header />
+            <div>
+              <Input
+                type="email"
+                placeholder="Email"
+              />
+            </div>
+            <div>
+              <Input
+                type={show ? "text" : "password"}
+                placeholder="Password"
+              />
+              <button
+                onClick={() => {
+                  setShow(!show);
+                }}
+              >{show ? "Hide" : "Show"}</button>
+            </div>
+            <RegisterButton
+              buttonText="Login"
+            />
+            <RegisterButton
+              buttonText="Sign up"
+            />
+          </>
+        );
+      }
+
+      const container = document.querySelector('.js-container');
+      ReactDOM.createRoot(container).render(<App />);
+    </script>
+  </body>
+</html>

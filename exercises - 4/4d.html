@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercise 4d</title>
+    <style>
+      body {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+      .button-element {
+        background-color: rgb(25, 135, 84);
+        color: white;
+        border: none;
+        margin-right: 10px;
+        padding: 15px 20px;
+        cursor: pointer;
+      }
+
+      .buttons-container {
+        background-color: rgb(222, 222, 222);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="js-container"></div>
+
+    <script src="https://unpkg.com/supersimpledev/react.js"></script>
+    <script src="https://unpkg.com/supersimpledev/react-dom.js"></script>
+    <script src="https://unpkg.com/supersimpledev/babel.js"></script>
+
+    <script type="text/babel">
+      function Counter({ count, setCount, counterRef }) {
+        return (
+          <button
+            onClick={() => {
+              setCount(count + 1);
+            }}
+            ref={counterRef}
+            className="button-element"
+          >Clicked {count} {count === 1 ? 'time' : 'times'}</button>
+        );
+      }
+
+      function Reset({ setCount }) {
+        return (
+          <button
+            onClick={() => {
+              setCount(0);
+            }}
+            className="button-element"
+          >Reset</button>
+        );
+      }
+
+      function AutoClick({ counterRef }) {
+        const [ intervalId, setIntervalId ] = React.useState(null);
+
+        function toggleAutoClick() {
+          if (!intervalId) {
+            setIntervalId(setInterval(() => {
+              counterRef.current.click();
+            }, 1000));
+          } else {
+            setIntervalId(clearInterval(intervalId));
+          }
+        }
+
+        return (
+          <button
+            onClick={toggleAutoClick}
+            className="button-element"
+          >{intervalId ? "Stop Auto Click" : "Auto Click"}</button>
+        );
+      }
+
+      function App() {
+        const [ count, setCount ] = React.useState(0);
+        const counterRef = React.useRef(null);
+
+        return (
+          <div className="buttons-container">
+            <Counter
+              count={count}
+              setCount={setCount}
+              counterRef={counterRef}
+            />
+            <Reset
+              setCount={setCount}
+            />
+            <AutoClick
+              counterRef={counterRef}
+            />
+          </div>
+        );
+      }
+
+      const container = document.querySelector('.js-container');
+      ReactDOM.createRoot(container).render(<App />);
+    </script>
+  </body>
+</html>
