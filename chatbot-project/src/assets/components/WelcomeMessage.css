@@ -1,0 +1,5 @@
+.welcome-message {
+  color: grey;
+  text-align: center;
+  /* text-align sets the alignment of inline data in a block element */
+}
