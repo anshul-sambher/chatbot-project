@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import WelcomeMessage from './assets/components/WelcomeMessage'
-import ChatMessages from './assets/components/ChatMessages'
-import ChatInput from './assets/components/ChatInput'
+import WelcomeMessage from './components/WelcomeMessage'
+import ChatMessages from './components/ChatMessages'
+import ChatInput from './components/ChatInput'
 import './App.css' // Vite feature - allows us to import any type of file
 
 function App() {
-  const [ chatMessages, setChatMessages ] = useState([]);
+  const [ chatMessages, setChatMessages ] = useState(
+    JSON.parse(localStorage.getItem('chat-messages')) || []
+  );
   const [ isLoading, setIsLoading ] = useState(false);
 
   return (

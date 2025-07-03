@@ -147,6 +147,8 @@
            component by creating a ref which is a container with special React features
         -> We can create our own custom hooks as well, by starting the name of the function with
            'use' and packaging code that needs to be run like a hook but uses standard code
+        -> Never ever call a state setter function inside JSX since it will cause an infinite loop
+           state setter -> JSX -> state setter -> ...
       */
 
       function useAutoScroll(dependencies) {

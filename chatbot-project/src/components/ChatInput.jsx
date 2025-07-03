@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import LoadingSpinnerGif from './assets/loading-spinner.gif'
+import LoadingSpinnerGif from '../assets/loading-spinner.gif'
 import { Chatbot } from 'supersimpledev'
 import './ChatInput.css'
 
@@ -21,40 +21,47 @@ function ChatInput({
   }
 
   async function sendMessage() {
-    const newChatMessages = [
+    const userMessage = {
+      message: inputText,
+      sender: 'user',
+      id: crypto.randomUUID()
+    }
+
+    const loadingMessage = {
+      message: <img src={LoadingSpinnerGif}
+                className='loading-gif' />,
+      sender: 'robot',
+      id: crypto.randomUUID()
+    }
+
+    const preLoadMessages = [
       ...chatMessages,
-      {
-        message: inputText,
-        sender: "user",
-        id: crypto.randomUUID()
-      }
+      userMessage,
+      loadingMessage
     ];
 
-    setChatMessages(newChatMessages);
+    setChatMessages(preLoadMessages);
     setInputText('');
-
-    setChatMessages([
-      ...newChatMessages,
-      {
-        message: <img src={LoadingSpinnerGif}
-                  className="loading-gif" />,
-        sender: "robot",
-        id: crypto.randomUUID()
-      }
-    ]);
 
     setIsLoading(true);
     const response = await Chatbot.getResponseAsync(inputText);
     setIsLoading(false);
+
+    const robotMessage = {
+      message: response,
+      sender: 'robot',
+      id: crypto.randomUUID()
+    }
+
+    const postLoadMessages = [
+      ...chatMessages,
+      userMessage,
+      robotMessage
+    ];
     
-    setChatMessages([
-      ...newChatMessages,
-      {
-        message: response,
-        sender: "robot",
-        id: crypto.randomUUID()
-      }
-    ]);
+    setChatMessages(postLoadMessages);
+
+    localStorage.setItem('chat-messages', JSON.stringify(postLoadMessages));
   }
 
   return (
@@ -75,6 +82,13 @@ function ChatInput({
         }}
         className="send-button"
       >Send</button>
+      <button
+        onClick={() => {
+          setChatMessages([]);
+          localStorage.setItem('chat-messages', JSON.stringify([]));
+        }}
+        className='clear-button'
+      >Clear</button>
     </div>
   );
 }

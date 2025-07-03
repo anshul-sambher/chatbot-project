@@ -11,13 +11,19 @@
   margin-bottom: 20px;
 }
 
-.chat-message-text {
+.chat-message-container {
   background-color: rgb(238, 238, 238);
   padding: 15px 20px;
   border-radius: 10px;
   margin-right: 10px;
   margin-left: 10px;
   max-width: 300px;
+}
+
+.chat-message-time {
+  color: gray;
+  font-size: 13px;
+  margin-top: 5px;
 }
 
 .chat-message-profile {
